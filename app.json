@@ -1,4 +1,13 @@
 {
-  "expo": {},
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "6b8b8f3b-877e-413a-a4d2-13047a97c27c"
+      }
+    },
+    "android": {
+      "package": "com.pecuca.miapprecetas"
+    }
+  },
   "slug": "recetario-pecuca"
 }
