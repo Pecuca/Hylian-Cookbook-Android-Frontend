@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Cambia esta IP por la IP local de tu computadora en la red Wi-Fi si usas dispositivo físico.
 // Si usas el emulador de Android de Android Studio, usa 'http://10.0.2.2:5000'.
 // Si usas iOS simulator, usa 'http://localhost:5000'.
-const API_URL = 'http://10.0.2.2:5000/api';
+const API_URL = 'https://hylian-cookbook-api.onrender.com/api';
 
 const getHeaders = async () => {
   const token = await AsyncStorage.getItem('userToken');
