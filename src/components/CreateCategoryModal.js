@@ -25,6 +25,7 @@ export default function CreateCategoryModal({ visible, onClose, onCreate }) {
             placeholderTextColor={colors.textMuted}
             value={name}
             onChangeText={setName}
+            maxLength={30}
             autoFocus
           />
 

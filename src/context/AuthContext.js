@@ -15,10 +15,10 @@ export const AuthProvider = ({ children }) => {
 
   const checkInitialState = async () => {
     try {
-      const storedUser = await AsyncStorage.getItem('userData');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
-      }
+      // Solo verificamos si hay token para las API calls, pero no auto-logueamos
+      // El usuario siempre deberá iniciar sesión al abrir la app
+      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('userToken');
     } catch (e) {
       console.error(e);
     } finally {

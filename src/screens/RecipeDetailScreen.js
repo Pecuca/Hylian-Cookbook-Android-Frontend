@@ -7,6 +7,7 @@ import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
 import DifficultyIndicator from '../components/DifficultyIndicator';
 import AddToCategoryModal from '../components/AddToCategoryModal';
+import HeaderExtension from '../components/HeaderExtension';
 
 export default function RecipeDetailScreen({ route, navigation }) {
   const { recipeId } = route.params;
@@ -63,7 +64,8 @@ export default function RecipeDetailScreen({ route, navigation }) {
 
   return (
     <View style={globalStyles.container}>
-      <ScrollView>
+      <HeaderExtension title="Detalle de Receta" />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <Image source={{ uri: recipe.image }} style={styles.image} />
         
         <View style={styles.content}>
@@ -106,19 +108,19 @@ export default function RecipeDetailScreen({ route, navigation }) {
       {/* Barra de Acciones Fija Abajo */}
       <View style={styles.actionBar}>
         <TouchableOpacity style={styles.actionBtn} onPress={() => setModalVisible(true)}>
-          <Ionicons name="folder-open" size={24} color={colors.accentGoldLight} />
+          <Ionicons name="folder-open" size={20} color={colors.tabIcon} />
           <Text style={styles.actionText}>Guardar</Text>
         </TouchableOpacity>
 
         {isOwner && (
           <>
             <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('EditRecipe', { recipe })}>
-              <Ionicons name="create" size={24} color={colors.info} />
-              <Text style={[styles.actionText, { color: colors.info }]}>Editar</Text>
+              <Ionicons name="create" size={20} color={colors.tabIcon} />
+              <Text style={styles.actionText}>Editar</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionBtn} onPress={handleDelete}>
-              <Ionicons name="trash" size={24} color={colors.danger} />
+              <Ionicons name="trash" size={20} color={colors.danger} />
               <Text style={[styles.actionText, { color: colors.danger }]}>Eliminar</Text>
             </TouchableOpacity>
           </>
@@ -135,6 +137,9 @@ export default function RecipeDetailScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    width: '100%',
+  },
   image: {
     width: '100%',
     height: 250,
@@ -204,18 +209,20 @@ const styles = StyleSheet.create({
   actionBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor: '#0d1f0d',
+    backgroundColor: colors.accentGold,
     borderTopWidth: 1,
     borderColor: colors.borderGold,
-    paddingVertical: 10,
-    paddingBottom: 20, // Para safe area
+    paddingVertical: 5,
+    paddingBottom: 15, // Para safe area
   },
   actionBtn: {
     alignItems: 'center',
   },
   actionText: {
-    color: colors.accentGoldLight,
-    marginTop: 5,
-    fontSize: 12,
+    color: colors.tabIcon,
+    marginTop: 2,
+    fontSize: 10,
+    fontFamily: 'Calamity',
+    fontWeight: 'bold',
   }
 });

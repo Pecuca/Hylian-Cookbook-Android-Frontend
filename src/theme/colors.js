@@ -7,6 +7,6 @@ export const colors = {
   textMuted: '#a8a8a8',
   danger: '#c44040',
   info: '#4a90d9',
-  borderGold: '#070707',
+  borderGold: '#fffee0',
   tabIcon: '#1b2229',
 };

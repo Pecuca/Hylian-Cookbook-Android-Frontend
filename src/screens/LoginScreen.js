@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { colors } from '../theme/colors';
@@ -32,58 +32,62 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={globalStyles.container}>
-      <View style={styles.formContainer}>
-        <View style={styles.headerContainer}>
-          <Image source={require('../../assets/images/logo.jpg')} style={styles.logo} />
-          <Text style={globalStyles.titleText}>Hylian Cookbook</Text>
-        </View>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.formContainer} keyboardShouldPersistTaps="handled">
+          <View style={globalStyles.card}>
+          <View style={styles.headerContainer}>
+            <Image source={require('../../assets/images/logo-transparent.png')} style={styles.logo} />
+            <Text style={globalStyles.titleText}>Hylian Cookbook</Text>
+          </View>
 
-        <Text style={styles.subtitle}>Iniciar Sesión</Text>
-        
-        <View style={styles.inputContainer}>
-          <Ionicons name="mail" size={20} color={colors.accentGold} style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Correo electrónico"
-            placeholderTextColor={colors.textMuted}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
-        
-        <View style={styles.inputContainer}>
-          <Ionicons name="lock-closed" size={20} color={colors.accentGold} style={styles.icon} />
-          <TextInput
-            style={styles.input}
-            placeholder="Contraseña"
-            placeholderTextColor={colors.textMuted}
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-            <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={colors.textMuted} />
+          <Text style={styles.subtitle}>Iniciar Sesión</Text>
+          
+          <View style={styles.inputContainer}>
+            <Ionicons name="mail" size={20} color={colors.accentGold} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Correo electrónico"
+              placeholderTextColor={colors.textMuted}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+          
+          <View style={styles.inputContainer}>
+            <Ionicons name="lock-closed" size={20} color={colors.accentGold} style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Contraseña"
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+              <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={colors.textMuted} />
+            </TouchableOpacity>
+          </View>
+          
+          <TouchableOpacity 
+            style={globalStyles.buttonPrimary} 
+            onPress={handleLogin}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color={colors.accentGoldLight} />
+            ) : (
+              <Text style={globalStyles.buttonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
-        </View>
-        
-        <TouchableOpacity 
-          style={globalStyles.buttonPrimary} 
-          onPress={handleLogin}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={colors.accentGoldLight} />
-          ) : (
-            <Text style={globalStyles.buttonText}>Entrar</Text>
-          )}
-        </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.linkButton}>
-          <Text style={styles.linkText}>¿No tienes cuenta? Regístrate aquí</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.linkButton}>
+            <Text style={styles.linkText}>¿No tienes cuenta? Regístrate aquí</Text>
+          </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }

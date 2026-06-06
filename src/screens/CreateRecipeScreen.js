@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import Slider from '@react-native-community/slider';
 import { api } from '../services/api';
 import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
+import HeaderExtension from '../components/HeaderExtension';
 
 export default function CreateRecipeScreen({ navigation }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [ingredients, setIngredients] = useState('');
-  const [steps, setSteps] = useState('');
+  
+  const [ingredients, setIngredients] = useState([{ name: '', quantity: '' }]);
+  const [steps, setSteps] = useState(['']);
+  
   const [difficulty, setDifficulty] = useState(1);
   const [isPublic, setIsPublic] = useState(false);
   const [image, setImage] = useState(null);
@@ -29,32 +33,24 @@ export default function CreateRecipeScreen({ navigation }) {
   };
 
   const handleSave = async () => {
-    if (!title || !ingredients || !steps) {
-      Alert.alert('Faltan datos', 'Título, ingredientes y pasos son obligatorios.');
+    // Basic validation
+    const validIngredients = ingredients.filter(i => i.name.trim() !== '' && i.quantity.trim() !== '');
+    const validSteps = steps.filter(s => s.trim() !== '');
+
+    if (!title || validIngredients.length === 0 || validSteps.length === 0) {
+      Alert.alert('Faltan datos', 'Título, al menos un ingrediente y un paso son obligatorios.');
       return;
     }
-
-    // Format ingredients correctly for backend
-    const formattedIngredients = ingredients
-      .split(',')
-      .map(i => i.trim())
-      .filter(i => i)
-      .map(name => ({ name, quantity: 'Al gusto' })); // Simplified for now, the UI just took a single string
-
-    const formattedSteps = steps
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s);
 
     const recipeData = {
       title,
       description,
-      ingredients: formattedIngredients,
-      steps: formattedSteps,
-      category: 'Almuerzo', // Default for now as backend requires it
+      ingredients: validIngredients,
+      steps: validSteps,
+      category: 'Almuerzo',
       difficulty,
       isPublic,
-      prepTime: 30, // Default for now
+      prepTime: 30,
       image: image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'
     };
 
@@ -68,156 +64,222 @@ export default function CreateRecipeScreen({ navigation }) {
     }
   };
 
-  const renderDifficultySelector = () => {
-    const stars = [];
-    for (let i = 1; i <= 10; i++) {
-      stars.push(
-        <TouchableOpacity key={i} onPress={() => setDifficulty(i)}>
-          <Ionicons 
-            name={i <= difficulty ? 'star' : 'star-outline'} 
-            size={24} 
-            color={colors.accentGold} 
-          />
-        </TouchableOpacity>
-      );
+  const renderHearts = () => {
+    const hearts = [];
+    for (let i = 0; i < 10; i++) {
+      if (i < difficulty) {
+        hearts.push(<Ionicons key={i} name="heart" size={24} color={colors.danger} />);
+      } else {
+        hearts.push(<Ionicons key={i} name="heart-outline" size={24} color={colors.textMuted} />);
+      }
     }
-    return <View style={styles.starsRow}>{stars}</View>;
+    return <View style={styles.heartsContainer}>{hearts}</View>;
   };
 
   return (
     <View style={globalStyles.container}>
-      <ScrollView style={{ padding: 15 }} keyboardShouldPersistTaps="handled">
+      <HeaderExtension title="Nueva Receta" />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <View style={globalStyles.card}>
         
-        <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.imagePreview} />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="camera" size={40} color={colors.accentGold} />
-              <Text style={{ color: colors.textMuted }}>Añadir Foto</Text>
+        <Text style={globalStyles.label}>Título de la Receta</Text>
+        <View style={globalStyles.section}>
+          <TextInput
+            style={globalStyles.input}
+            placeholder="Ej: Elixir Picante"
+            value={title}
+            onChangeText={setTitle}
+            maxLength={30}
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+
+        <Text style={globalStyles.label}>Descripción</Text>
+        <View style={globalStyles.section}>
+          <TextInput
+            style={[globalStyles.input, { height: 80, textAlignVertical: 'top' }]}
+            placeholder="Cuentanos sobre esta receta..."
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            maxLength={75}
+            placeholderTextColor={colors.textMuted}
+          />
+        </View>
+
+        <Text style={globalStyles.label}>Ingredientes</Text>
+        <View style={globalStyles.section}>
+          {ingredients.map((ing, index) => (
+            <View key={index} style={styles.rowItem}>
+              <TextInput
+                style={[globalStyles.input, { flex: 3, marginRight: 10 }]}
+                placeholder="Ingrediente"
+                value={ing.name}
+                maxLength={75}
+                onChangeText={(val) => {
+                  const newIngs = [...ingredients];
+                  newIngs[index].name = val;
+                  setIngredients(newIngs);
+                }}
+                placeholderTextColor={colors.textMuted}
+              />
+              <TextInput
+                style={[globalStyles.input, { flex: 1 }]}
+                placeholder="Cant."
+                value={ing.quantity}
+                maxLength={15}
+                onChangeText={(val) => {
+                  const newIngs = [...ingredients];
+                  newIngs[index].quantity = val;
+                  setIngredients(newIngs);
+                }}
+                placeholderTextColor={colors.textMuted}
+              />
+              {ingredients.length > 1 && (
+                <TouchableOpacity onPress={() => {
+                  const newIngs = ingredients.filter((_, i) => i !== index);
+                  setIngredients(newIngs);
+                }} style={{ paddingHorizontal: 10, marginBottom: 15 }}>
+                  <Ionicons name="trash-outline" size={24} color={colors.danger} />
+                </TouchableOpacity>
+              )}
             </View>
-          )}
-        </TouchableOpacity>
-
-        <TextInput
-          style={globalStyles.input}
-          placeholder="Título de la receta..."
-          placeholderTextColor={colors.textMuted}
-          value={title}
-          onChangeText={setTitle}
-        />
-
-        <TextInput
-          style={[globalStyles.input, { height: 80, textAlignVertical: 'top' }]}
-          placeholder="Descripción (opcional)..."
-          placeholderTextColor={colors.textMuted}
-          multiline
-          value={description}
-          onChangeText={setDescription}
-        />
-
-        <Text style={styles.label}>Dificultad (1-10): {difficulty}</Text>
-        {renderDifficultySelector()}
-
-        <TextInput
-          style={[globalStyles.input, { height: 80, textAlignVertical: 'top', marginTop: 15 }]}
-          placeholder="Ingredientes (separados por comas)..."
-          placeholderTextColor={colors.textMuted}
-          multiline
-          value={ingredients}
-          onChangeText={setIngredients}
-        />
-
-        <TextInput
-          style={[globalStyles.input, { height: 100, textAlignVertical: 'top' }]}
-          placeholder="Pasos (separados por comas)..."
-          placeholderTextColor={colors.textMuted}
-          multiline
-          value={steps}
-          onChangeText={setSteps}
-        />
-
-        <View style={styles.switchRow}>
-          <Text style={{ color: colors.textLight, fontSize: 16 }}>
-            {isPublic ? '🌍 Hacer Pública' : '🔒 Mantener Privada'}
-          </Text>
+          ))}
           <TouchableOpacity 
-            style={[styles.switch, isPublic && styles.switchActive]}
-            onPress={() => setIsPublic(!isPublic)}
+            style={styles.addBtn}
+            onPress={() => setIngredients([...ingredients, { name: '', quantity: '' }])}
           >
-            <View style={[styles.switchThumb, isPublic && styles.switchThumbActive]} />
+            <Ionicons name="add-circle-outline" size={20} color={colors.accentGoldLight} />
+            <Text style={styles.addBtnText}>Añadir Ingrediente</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={globalStyles.label}>Pasos</Text>
+        <View style={globalStyles.section}>
+          {steps.map((step, index) => (
+            <View key={index} style={styles.rowItem}>
+              <Text style={styles.stepIndex}>{index + 1}.</Text>
+              <TextInput
+                style={[globalStyles.input, { flex: 1 }]}
+                placeholder={`Paso ${index + 1}`}
+                value={step}
+                maxLength={75}
+                onChangeText={(val) => {
+                  const newSteps = [...steps];
+                  newSteps[index] = val;
+                  setSteps(newSteps);
+                }}
+                multiline
+                placeholderTextColor={colors.textMuted}
+              />
+              {steps.length > 1 && (
+                <TouchableOpacity onPress={() => {
+                  const newSteps = steps.filter((_, i) => i !== index);
+                  setSteps(newSteps);
+                }} style={{ paddingHorizontal: 10, marginBottom: 15 }}>
+                  <Ionicons name="trash-outline" size={24} color={colors.danger} />
+                </TouchableOpacity>
+              )}
+            </View>
+          ))}
+          <TouchableOpacity 
+            style={styles.addBtn}
+            onPress={() => setSteps([...steps, ''])}
+          >
+            <Ionicons name="add-circle-outline" size={20} color={colors.accentGoldLight} />
+            <Text style={styles.addBtnText}>Añadir Paso</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text style={globalStyles.label}>Dificultad</Text>
+        <View style={[globalStyles.section, { alignItems: 'center' }]}>
+          {renderHearts()}
+          <Slider
+            style={{ width: '100%', height: 40 }}
+            minimumValue={1}
+            maximumValue={10}
+            step={1}
+            value={difficulty}
+            onValueChange={setDifficulty}
+            minimumTrackTintColor={colors.danger}
+            maximumTrackTintColor={colors.textMuted}
+            thumbTintColor={colors.accentGoldLight}
+          />
+        </View>
+
+        <Text style={globalStyles.label}>Imagen de la Receta</Text>
+        <View style={globalStyles.section}>
+          <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+            {image ? (
+              <Image source={{ uri: image }} style={styles.previewImage} />
+            ) : (
+              <>
+                <Ionicons name="camera" size={40} color={colors.textMuted} />
+                <Text style={{ color: colors.textMuted, marginTop: 10, fontFamily: 'Calamity' }}>Toque para añadir foto</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={globalStyles.buttonPrimary} onPress={handleSave}>
           <Text style={globalStyles.buttonText}>Crear Receta</Text>
         </TouchableOpacity>
-        
-        <View style={{ height: 40 }} />
-      </ScrollView>
+
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  imagePicker: {
-    height: 200,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: colors.borderGold,
-    marginBottom: 15,
-    overflow: 'hidden',
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
   },
-  imagePlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  imagePreview: {
-    width: '100%',
-    height: '100%',
-  },
-  label: {
-    color: colors.textMuted,
-    marginBottom: 5,
-    marginLeft: 5,
-  },
-  starsRow: {
+  rowItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 10,
+    alignItems: 'center',
     marginBottom: 10,
   },
-  switchRow: {
+  stepIndex: {
+    color: colors.accentGoldLight,
+    fontWeight: 'bold',
+    marginRight: 10,
+    fontSize: 16,
+    fontFamily: 'Calamity'
+  },
+  addBtn: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 15,
+    paddingVertical: 5,
+    marginTop: 5,
+  },
+  addBtnText: {
+    color: colors.accentGoldLight,
+    marginLeft: 5,
+    fontFamily: 'Calamity',
+    fontSize: 14,
+  },
+  heartsContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  imagePicker: {
+    height: 150,
+    backgroundColor: 'rgba(7,7,7,0.5)',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderGold,
-    marginBottom: 20,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
   },
-  switch: {
-    width: 50,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    padding: 2,
-  },
-  switchActive: {
-    backgroundColor: 'rgba(200, 168, 78, 0.5)',
-  },
-  switchThumb: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: colors.textMuted,
-  },
-  switchThumbActive: {
-    backgroundColor: colors.accentGoldLight,
-    transform: [{ translateX: 24 }],
+  previewImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
   }
 });

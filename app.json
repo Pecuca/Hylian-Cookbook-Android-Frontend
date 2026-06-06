@@ -8,6 +8,7 @@
     "android": {
       "package": "com.pecuca.miapprecetas"
     },
+    "icon": "./assets/images/icon.png",
     "plugins": [
       "expo-font"
     ]

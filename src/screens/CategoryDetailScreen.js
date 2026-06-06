@@ -5,6 +5,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../services/api';
 import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
+import HeaderExtension from '../components/HeaderExtension';
 import RecipeCard from '../components/RecipeCard';
 import FilterBar from '../components/FilterBar';
 
@@ -80,6 +81,7 @@ export default function CategoryDetailScreen({ route, navigation }) {
 
   return (
     <View style={globalStyles.container}>
+      <HeaderExtension title={category.name} />
       <View style={{ padding: 15, flex: 1 }}>
         
         <View style={styles.header}>

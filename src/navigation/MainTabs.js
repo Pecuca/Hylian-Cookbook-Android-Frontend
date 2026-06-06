@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,80 +18,93 @@ const Tab = createBottomTabNavigator();
 const RecipeStack = createNativeStackNavigator();
 const CategoryStack = createNativeStackNavigator();
 
+// Logo + Title header component
+const LogoTitle = () => (
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <Image 
+      source={require('../../assets/images/logo-transparent.png')} 
+      style={{ 
+        width: 35, 
+        height: 35, 
+        resizeMode: 'contain', 
+        marginRight: 10,
+      }} 
+    />
+    <Text style={{ fontFamily: 'HyliaSerif', fontSize: 24, color: colors.tabIcon }}>
+      Hylian Cookbook
+    </Text>
+  </View>
+);
+
 // Custom Header for the app
 const headerOptions = (navigation) => ({
-  headerStyle: { backgroundColor: 'transparent' },
-  headerTransparent: true,
-  headerTintColor: colors.accentGoldLight,
-  headerTitleStyle: { fontFamily: 'HyliaSerif', fontSize: 24 },
-  headerLeft: () => (
-    <Image 
-      source={require('../../assets/images/logo.jpg')} 
-      style={{ width: 35, height: 35, resizeMode: 'contain', marginLeft: 15, marginRight: 10 }} 
-    />
-  ),
+  headerStyle: { backgroundColor: colors.accentGold },
+  headerTintColor: colors.tabIcon,
+  headerBackVisible: false,
+  headerLeft: () => null,
+  headerTitle: () => <LogoTitle />,
   headerRight: () => (
     <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginRight: 15 }}>
-      <Ionicons name="person-circle-outline" size={32} color={colors.accentGoldLight} />
+      <Ionicons name="person-circle-outline" size={32} color={colors.tabIcon} />
     </TouchableOpacity>
   )
 });
 
 // Stack para las Recetas
-function RecipeStackNavigator({ navigation }) {
+function RecipeStackNavigator() {
   return (
     <RecipeStack.Navigator
-      screenOptions={headerOptions(navigation)}
+      screenOptions={({ navigation }) => headerOptions(navigation)}
     >
       <RecipeStack.Screen 
         name="RecipesList" 
         component={PersonalRecipesScreen} 
-        options={{ title: 'Hylian Cookbook' }} 
+        options={{ title: '' }} 
       />
       <RecipeStack.Screen 
         name="CreateRecipe" 
         component={CreateRecipeScreen} 
-        options={{ title: 'Nueva Receta' }} 
+        options={{ title: 'Nueva Receta', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
       <RecipeStack.Screen 
         name="RecipeDetail" 
         component={RecipeDetailScreen} 
-        options={{ title: 'Detalle de Receta' }} 
+        options={{ title: 'Detalle de Receta', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
       <RecipeStack.Screen 
         name="EditRecipe" 
         component={EditRecipeScreen} 
-        options={{ title: 'Editar Receta' }} 
+        options={{ title: 'Editar Receta', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
       <RecipeStack.Screen 
         name="Profile" 
         component={ProfileScreen} 
-        options={{ title: 'Perfil' }} 
+        options={{ title: 'Mi Perfil', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
     </RecipeStack.Navigator>
   );
 }
 
 // Stack para las Categorías
-function CategoryStackNavigator({ navigation }) {
+function CategoryStackNavigator() {
   return (
     <CategoryStack.Navigator
-      screenOptions={headerOptions(navigation)}
+      screenOptions={({ navigation }) => headerOptions(navigation)}
     >
       <CategoryStack.Screen 
         name="CategoriesList" 
         component={CategoriesScreen} 
-        options={{ title: 'Mis Categorías' }} 
+        options={{ title: '' }} 
       />
       <CategoryStack.Screen 
         name="CategoryDetail" 
         component={CategoryDetailScreen} 
-        options={{ title: 'Recetas' }} 
+        options={{ title: 'Recetas', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
       <CategoryStack.Screen 
         name="Profile" 
         component={ProfileScreen} 
-        options={{ title: 'Perfil' }} 
+        options={{ title: 'Mi Perfil', headerTitleStyle: { fontFamily: 'Calamity', fontSize: 20 } }} 
       />
     </CategoryStack.Navigator>
   );
@@ -113,10 +126,10 @@ export default function MainTabs() {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.accentGoldLight,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarActiveTintColor: colors.tabIcon,
+        tabBarInactiveTintColor: 'rgba(27, 34, 41, 0.5)', // Muted version of tabIcon
         tabBarStyle: {
-          backgroundColor: '#0d1f0d', // Más oscuro para la barra
+          backgroundColor: colors.accentGold, // Color principal
           borderTopWidth: 1,
           borderTopColor: colors.borderGold,
           paddingBottom: 5,
@@ -124,8 +137,28 @@ export default function MainTabs() {
         },
       })}
     >
-      <Tab.Screen name="Recetas" component={RecipeStackNavigator} />
-      <Tab.Screen name="Categorías" component={CategoryStackNavigator} />
+      <Tab.Screen 
+        name="Recetas" 
+        component={RecipeStackNavigator} 
+        options={{ unmountOnBlur: true }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Recetas', { screen: 'RecipesList' });
+          },
+        })}
+      />
+      <Tab.Screen 
+        name="Categorías" 
+        component={CategoryStackNavigator} 
+        options={{ unmountOnBlur: true }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate('Categorías', { screen: 'CategoriesList' });
+          },
+        })}
+      />
     </Tab.Navigator>
   );
 }
