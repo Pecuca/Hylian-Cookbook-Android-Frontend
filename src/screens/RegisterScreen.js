@@ -1,9 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AuthContext } from '../../context/AuthContext';
-import { colors } from '../../theme/colors';
-import { globalStyles } from '../../theme/styles';
+import { AuthContext } from '../context/AuthContext';
+import { colors } from '../theme/colors';
+import { globalStyles } from '../theme/styles';
 import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RegisterScreen({ navigation }) {

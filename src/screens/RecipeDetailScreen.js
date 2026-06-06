@@ -24,7 +24,7 @@ export default function RecipeDetailScreen({ route, navigation }) {
     try {
       // Como no tenemos un getById en api.js, podemos sacarlo del listado o crear la función
       // Haremos un fetch directo aquí por simplicidad ya que no lo agregué a api.js
-      const res = await fetch(`http://10.0.2.2:5000/api/recipes/${recipeId}`);
+      const res = await fetch(`https://hylian-cookbook-android-backend-production.up.railway.app/api/recipes/${recipeId}`);
       const data = await res.json();
       setRecipe(data.recipe);
     } catch (e) {
