@@ -4,7 +4,7 @@ import { colors } from './colors';
 export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: 'transparent',
   },
   card: {
     backgroundColor: colors.cardBg,
@@ -16,20 +16,22 @@ export const globalStyles = StyleSheet.create({
   },
   titleText: {
     color: colors.textLight,
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontFamily: 'HyliaSerif',
     marginBottom: 20,
-    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowColor: 'rgba(0,0,0,0.8)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,
   },
   bodyText: {
     color: colors.textLight,
     fontSize: 16,
+    fontFamily: 'Calamity',
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(7, 7, 7, 0.5)',
     color: colors.textLight,
+    fontFamily: 'Calamity',
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
@@ -47,8 +49,8 @@ export const globalStyles = StyleSheet.create({
   },
   buttonText: {
     color: colors.accentGoldLight,
-    fontWeight: 'bold',
-    fontSize: 16,
+    fontFamily: 'Calamity',
+    fontSize: 18,
     textTransform: 'uppercase',
     letterSpacing: 1,
   },

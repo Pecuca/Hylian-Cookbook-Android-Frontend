@@ -1,11 +1,12 @@
 export const colors = {
-  background: '#1a2e1a', // Zelda TotK deep green
-  cardBg: 'rgba(20, 35, 20, 0.8)',
-  accentGold: '#c8a84e',
-  accentGoldLight: '#dbc06f',
-  textLight: '#f0e6c8',
+  background: '#070707',
+  cardBg: 'rgba(7, 7, 7, 0.7)',
+  accentGold: '#fffee0',
+  accentGoldLight: '#f8f7e4',
+  textLight: '#f8f7e4',
   textMuted: '#a8a8a8',
   danger: '#c44040',
   info: '#4a90d9',
-  borderGold: 'rgba(200, 168, 78, 0.5)',
+  borderGold: '#070707',
+  tabIcon: '#1b2229',
 };

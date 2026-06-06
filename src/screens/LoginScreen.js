@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import { globalStyles } from '../theme/styles';
-import { LinearGradient } from 'expo-linear-gradient';
+import { Image } from 'react-native';
 
 export default function LoginScreen({ navigation }) {
   const { login, isLoading } = useContext(AuthContext);
@@ -31,9 +31,13 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
-      <View style={styles.content}>
-        <Text style={globalStyles.titleText}>Hylian Cookbook</Text>
+    <View style={globalStyles.container}>
+      <View style={styles.formContainer}>
+        <View style={styles.headerContainer}>
+          <Image source={require('../../assets/images/logo.jpg')} style={styles.logo} />
+          <Text style={globalStyles.titleText}>Hylian Cookbook</Text>
+        </View>
+
         <Text style={styles.subtitle}>Iniciar Sesión</Text>
         
         <View style={styles.inputContainer}>
@@ -80,15 +84,25 @@ export default function LoginScreen({ navigation }) {
           <Text style={styles.linkText}>¿No tienes cuenta? Regístrate aquí</Text>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  content: {
+  formContainer: {
     flex: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 10,
   },
   subtitle: {
     color: colors.textMuted,

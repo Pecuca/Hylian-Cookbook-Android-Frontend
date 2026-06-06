@@ -1,9 +1,19 @@
-import React, { useContext } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import React, { useContext, useEffect } from 'react';
+import { useFonts } from 'expo-font';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider, AuthContext } from './src/context/AuthContext';
 import { View, ActivityIndicator } from 'react-native';
 import { colors } from './src/theme/colors';
+import BackgroundVideo from './src/components/BackgroundVideo';
+
+const navTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: 'transparent',
+  },
+};
 
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
@@ -23,8 +33,10 @@ function AppNavigation() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <BackgroundVideo />
+      <NavigationContainer theme={navTheme}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user ? (
           // Usuario autenticado, mostrar la app principal
           <Stack.Screen name="Main" component={MainTabs} />
@@ -37,10 +49,20 @@ function AppNavigation() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </View>
   );
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'HyliaSerif': require('./assets/fonts/HyliaSerifBeta-Regular.otf'),
+    'Calamity': require('./assets/fonts/Calamity-Regular.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return null; // Or a splash screen
+  }
+
   return (
     <AuthProvider>
       <AppNavigation />

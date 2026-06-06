@@ -5,7 +5,6 @@ import { api } from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
-import { LinearGradient } from 'expo-linear-gradient';
 import DifficultyIndicator from '../components/DifficultyIndicator';
 import AddToCategoryModal from '../components/AddToCategoryModal';
 
@@ -63,7 +62,7 @@ export default function RecipeDetailScreen({ route, navigation }) {
   const isOwner = recipe.author && recipe.author._id === user._id;
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+    <View style={globalStyles.container}>
       <ScrollView>
         <Image source={{ uri: recipe.image }} style={styles.image} />
         
@@ -131,7 +130,7 @@ export default function RecipeDetailScreen({ route, navigation }) {
         onClose={() => setModalVisible(false)} 
         recipeId={recipeId} 
       />
-    </LinearGradient>
+    </View>
   );
 }
 

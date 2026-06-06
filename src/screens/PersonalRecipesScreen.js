@@ -8,7 +8,6 @@ import { colors } from '../theme/colors';
 import RecipeCard from '../components/RecipeCard';
 import FilterBar from '../components/FilterBar';
 import TabSelector from '../components/TabSelector';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PersonalRecipesScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'public'
@@ -67,7 +66,7 @@ export default function PersonalRecipesScreen({ navigation }) {
   const sortedRecipes = sortRecipes(recipes);
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+    <View style={globalStyles.container}>
       <View style={{ padding: 15, flex: 1 }}>
         <TabSelector 
           tabs={[
@@ -111,7 +110,7 @@ export default function PersonalRecipesScreen({ navigation }) {
           </TouchableOpacity>
         )}
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 

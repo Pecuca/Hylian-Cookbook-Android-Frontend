@@ -35,6 +35,28 @@ export const api = {
     if (!res.ok) throw new Error(data.message || 'Error en registro');
     return data;
   },
+  updateProfile: async (name) => {
+    const headers = await getHeaders();
+    const res = await fetch(`${API_URL}/auth/profile`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ name }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error al actualizar perfil');
+    return data;
+  },
+  changePassword: async (currentPassword, newPassword) => {
+    const headers = await getHeaders();
+    const res = await fetch(`${API_URL}/auth/password`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error al cambiar contraseña');
+    return data;
+  },
 
   // --- Recipes ---
   getPublicRecipes: async (category = 'Todas') => {

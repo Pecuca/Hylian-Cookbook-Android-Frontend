@@ -5,7 +5,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { api } from '../services/api';
 import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function EditRecipeScreen({ route, navigation }) {
   const { recipe } = route.params;
@@ -85,7 +84,7 @@ export default function EditRecipeScreen({ route, navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+    <View style={globalStyles.container}>
       <ScrollView style={{ padding: 15 }} keyboardShouldPersistTaps="handled">
         
         <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
@@ -155,7 +154,7 @@ export default function EditRecipeScreen({ route, navigation }) {
         
         <View style={{ height: 40 }} />
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
 

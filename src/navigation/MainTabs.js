@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Image, TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,20 +12,36 @@ import EditRecipeScreen from '../screens/EditRecipeScreen';
 
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryDetailScreen from '../screens/CategoryDetailScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const RecipeStack = createNativeStackNavigator();
 const CategoryStack = createNativeStackNavigator();
 
+// Custom Header for the app
+const headerOptions = (navigation) => ({
+  headerStyle: { backgroundColor: 'transparent' },
+  headerTransparent: true,
+  headerTintColor: colors.accentGoldLight,
+  headerTitleStyle: { fontFamily: 'HyliaSerif', fontSize: 24 },
+  headerLeft: () => (
+    <Image 
+      source={require('../../assets/images/logo.jpg')} 
+      style={{ width: 35, height: 35, resizeMode: 'contain', marginLeft: 15, marginRight: 10 }} 
+    />
+  ),
+  headerRight: () => (
+    <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={{ marginRight: 15 }}>
+      <Ionicons name="person-circle-outline" size={32} color={colors.accentGoldLight} />
+    </TouchableOpacity>
+  )
+});
+
 // Stack para las Recetas
-function RecipeStackNavigator() {
+function RecipeStackNavigator({ navigation }) {
   return (
     <RecipeStack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.accentGoldLight,
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
+      screenOptions={headerOptions(navigation)}
     >
       <RecipeStack.Screen 
         name="RecipesList" 
@@ -46,19 +63,20 @@ function RecipeStackNavigator() {
         component={EditRecipeScreen} 
         options={{ title: 'Editar Receta' }} 
       />
+      <RecipeStack.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{ title: 'Perfil' }} 
+      />
     </RecipeStack.Navigator>
   );
 }
 
 // Stack para las Categorías
-function CategoryStackNavigator() {
+function CategoryStackNavigator({ navigation }) {
   return (
     <CategoryStack.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.background },
-        headerTintColor: colors.accentGoldLight,
-        headerTitleStyle: { fontWeight: 'bold' },
-      }}
+      screenOptions={headerOptions(navigation)}
     >
       <CategoryStack.Screen 
         name="CategoriesList" 
@@ -68,7 +86,12 @@ function CategoryStackNavigator() {
       <CategoryStack.Screen 
         name="CategoryDetail" 
         component={CategoryDetailScreen} 
-        options={{ title: 'Recetas de la Categoría' }} 
+        options={{ title: 'Recetas' }} 
+      />
+      <CategoryStack.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{ title: 'Perfil' }} 
       />
     </CategoryStack.Navigator>
   );

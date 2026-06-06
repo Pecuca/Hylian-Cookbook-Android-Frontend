@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { AuthContext } from '../context/AuthContext';
 import { colors } from '../theme/colors';
 import { globalStyles } from '../theme/styles';
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RegisterScreen({ navigation }) {
   const { register, isLoading } = useContext(AuthContext);
@@ -43,7 +42,7 @@ export default function RegisterScreen({ navigation }) {
   };
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+    <View style={globalStyles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Crea tu cuenta</Text>
         
@@ -114,7 +113,7 @@ export default function RegisterScreen({ navigation }) {
           <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 

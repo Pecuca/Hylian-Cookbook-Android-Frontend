@@ -5,7 +5,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { api } from '../services/api';
 import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
-import { LinearGradient } from 'expo-linear-gradient';
 import CreateCategoryModal from '../components/CreateCategoryModal';
 
 export default function CategoriesScreen({ navigation }) {
@@ -81,7 +80,7 @@ export default function CategoriesScreen({ navigation }) {
   );
 
   return (
-    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+    <View style={globalStyles.container}>
       <View style={{ padding: 15, flex: 1 }}>
         
         {loading ? (
@@ -116,7 +115,7 @@ export default function CategoriesScreen({ navigation }) {
           onCreate={handleCreateCategory}
         />
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
