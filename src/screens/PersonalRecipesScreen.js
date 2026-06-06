@@ -1,147 +1,137 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { mockRecipes, mockGroups } from '../utils/mockData';
+import React, { useState, useCallback } from 'react';
+import { View, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
+import { api } from '../services/api';
+import { globalStyles } from '../theme/styles';
+import { colors } from '../theme/colors';
+import RecipeCard from '../components/RecipeCard';
+import FilterBar from '../components/FilterBar';
+import TabSelector from '../components/TabSelector';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function PersonalRecipesScreen({ navigation }) {
-  // 1. Simulamos que el usuario logueado es "user_1"
-  const currentUserId = "user_1";
+  const [activeTab, setActiveTab] = useState('mine'); // 'mine' | 'public'
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Filters
+  const [sortOption, setSortOption] = useState('alpha'); // 'alpha' | 'date' | 'difficulty'
+  const [isAscending, setIsAscending] = useState(true);
 
-  // 2. Filtramos sus carpetas/grupos
-  const myGroups = mockGroups.filter(group => group.userId === currentUserId);
-
-  // 3. Filtramos sus recetas y las ordenamos alfabéticamente (Requisito del profe)
-  const myRecipes = mockRecipes
-    .filter(recipe => recipe.userId === currentUserId)
-    .sort((a, b) => a.title.localeCompare(b.title));
-
-  // Componente visual para cada Carpeta/Grupo
-  const renderGroupItem = ({ item }) => (
-    <TouchableOpacity style={styles.groupCard}>
-      <Text style={styles.groupTitle}>📁 {item.name}</Text>
-    </TouchableOpacity>
+  useFocusEffect(
+    useCallback(() => {
+      loadRecipes();
+    }, [activeTab])
   );
 
-  // Componente visual para cada Receta
-  const renderRecipeItem = ({ item }) => (
-    <View style={styles.recipeCard}>
-      <Text style={styles.recipeTitle}>{item.title}</Text>
-      <Text style={styles.recipeVisibility}>
-        {item.isPublic ? "🌍 Pública" : "🔒 Privada"}
-      </Text>
-    </View>
-  );
+  const loadRecipes = async () => {
+    setLoading(true);
+    try {
+      let data = [];
+      if (activeTab === 'mine') {
+        data = await api.getMyRecipes();
+      } else {
+        data = await api.getPublicRecipes();
+      }
+      setRecipes(data);
+    } catch (error) {
+      console.log('Error loading recipes', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const sortRecipes = (data) => {
+    return [...data].sort((a, b) => {
+      let valA, valB;
+      
+      if (sortOption === 'alpha') {
+        valA = a.title.toLowerCase();
+        valB = b.title.toLowerCase();
+        if (valA < valB) return isAscending ? -1 : 1;
+        if (valA > valB) return isAscending ? 1 : -1;
+        return 0;
+      } else if (sortOption === 'difficulty') {
+        valA = a.difficulty || 1;
+        valB = b.difficulty || 1;
+        return isAscending ? valA - valB : valB - valA;
+      } else { // date
+        valA = new Date(a.createdAt).getTime();
+        valB = new Date(b.createdAt).getTime();
+        return isAscending ? valA - valB : valB - valA;
+      }
+    });
+  };
+
+  const sortedRecipes = sortRecipes(recipes);
 
   return (
-    <View style={styles.container}>
-      
-      {/* SECCIÓN DE CARPETAS */}
-      <Text style={styles.sectionTitle}>Mis Carpetas</Text>
-      <FlatList
-        data={myGroups}
-        keyExtractor={(item) => item.id}
-        renderItem={renderGroupItem}
-        horizontal={true} // Lista horizontal para las carpetas
-        showsHorizontalScrollIndicator={false}
-        style={styles.groupsList}
-      />
+    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+      <View style={{ padding: 15, flex: 1 }}>
+        <TabSelector 
+          tabs={[
+            { id: 'mine', label: 'Mis Recetas' },
+            { id: 'public', label: 'Públicas' }
+          ]}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
-      {/* SECCIÓN DE RECETAS */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingRight: 20 }}>
-        <Text style={styles.sectionTitle}>Mis Recetas (A-Z)</Text>
-        <TouchableOpacity 
-          style={{ backgroundColor: '#007bff', padding: 8, borderRadius: 8 }}
-          onPress={() => navigation.navigate('CreateRecipe')}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>+ Nueva</Text>
-        </TouchableOpacity>
+        <FilterBar 
+          sortOption={sortOption}
+          isAscending={isAscending}
+          onSortChange={setSortOption}
+          onToggleOrder={() => setIsAscending(!isAscending)}
+        />
+
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.accentGold} style={{ marginTop: 50 }} />
+        ) : (
+          <FlatList
+            data={sortedRecipes}
+            keyExtractor={(item) => item._id}
+            renderItem={({ item }) => (
+              <RecipeCard 
+                recipe={item} 
+                showAuthor={activeTab === 'public'}
+                onPress={() => navigation.navigate('RecipeDetail', { recipeId: item._id })}
+              />
+            )}
+            contentContainerStyle={{ paddingBottom: 80 }}
+          />
+        )}
+
+        {activeTab === 'mine' && (
+          <TouchableOpacity 
+            style={styles.fab}
+            onPress={() => navigation.navigate('CreateRecipe')}
+          >
+            <Ionicons name="add" size={30} color={colors.background} />
+          </TouchableOpacity>
+        )}
       </View>
-
-      {/* Botón flotante para ir a la vista general (Recetas de otros) */}
-      <TouchableOpacity style={styles.generalViewButton}>
-        <Text style={styles.generalViewButtonText}>Ver Recetas Comunitarias 🌐</Text>
-      </TouchableOpacity>
-
-    </View>
-    
-    
+    </LinearGradient>
   );
-  
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-    paddingTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 20,
-    marginBottom: 10,
-    color: '#333',
-  },
-  groupsList: {
-    paddingLeft: 20,
-    maxHeight: 60,
-    marginBottom: 20,
-  },
-  groupCard: {
-    backgroundColor: '#007bff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginRight: 10,
-    justifyContent: 'center',
-  },
-  groupTitle: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  recipesList: {
-    paddingHorizontal: 20,
-    paddingBottom: 80, // Espacio para que el botón flotante no tape la última receta
-  },
-  recipeCard: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#eee',
-  },
-  recipeTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  recipeVisibility: {
-    fontSize: 12,
-    color: '#666',
-    backgroundColor: '#f0f0f0',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  generalViewButton: {
+  fab: {
     position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    backgroundColor: '#28a745',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    bottom: 20,
+    right: 20,
+    backgroundColor: colors.accentGoldLight,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
     elevation: 5,
-  },
-  generalViewButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+    borderWidth: 2,
+    borderColor: colors.textLight,
   }
 });

@@ -1,122 +1,164 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { mockUsers } from '../utils/mockData';
+import React, { useState, useContext } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AuthContext } from '../../context/AuthContext';
+import { colors } from '../../theme/colors';
+import { globalStyles } from '../../theme/styles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RegisterScreen({ navigation }) {
+  const { register, isLoading } = useContext(AuthContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleRegister = () => {
-    // 1. Validar que no haya campos vacíos
+  const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Todos los campos son obligatorios');
       return;
     }
 
-    // 2. Validar que las contraseñas coincidan
+    if (password.length < 8) {
+      Alert.alert('Error', 'La contraseña debe tener mínimo 8 caracteres');
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
-    // 3. Validar que el correo no exista ya en la base de datos (simulada)
-    const emailExists = mockUsers.find(
-      user => user.email.toLowerCase() === email.toLowerCase()
-    );
-
-    if (emailExists) {
-      Alert.alert('Error', 'Ese correo ya está registrado en el sistema. Usa otro o inicia sesión.');
-      return;
+    const result = await register(name, email, password);
+    if (!result.success) {
+      Alert.alert('Error al registrar', result.error);
+    } else {
+      Alert.alert(
+        '¡Registro Exitoso!', 
+        'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
+        [{ text: 'Ir al Login', onPress: () => navigation.navigate('Login') }]
+      );
     }
-
-    // 4. Si todo está bien, simulamos el éxito y lo mandamos al Login
-    // En el futuro, aquí harás un fetch('POST') al backend de tu compañero
-    Alert.alert(
-      '¡Registro Exitoso!', 
-      'Tu cuenta ha sido creada. Ahora puedes iniciar sesión.',
-      [
-        { text: 'Ir al Login', onPress: () => navigation.navigate('Login') }
-      ]
-    );
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Crea tu cuenta</Text>
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre completo"
-        value={name}
-        onChangeText={setName}
-      />
+    <LinearGradient colors={['#0d1f0d', '#1a2e1a']} style={globalStyles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Crea tu cuenta</Text>
+        
+        <View style={styles.inputContainer}>
+          <Ionicons name="person" size={20} color={colors.accentGold} style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre completo"
+            placeholderTextColor={colors.textMuted}
+            value={name}
+            onChangeText={setName}
+          />
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        value={email}
-        onChangeText={setEmail}
-      />
-      
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail" size={20} color={colors.accentGold} style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Correo electrónico"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+        
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed" size={20} color={colors.accentGold} style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña (mín 8 car.)"
+            placeholderTextColor={colors.textMuted}
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+            <Ionicons name={showPassword ? "eye-off" : "eye"} size={20} color={colors.textMuted} />
+          </TouchableOpacity>
+        </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Confirmar Contraseña"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-      />
-      
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Registrarme</Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed" size={20} color={colors.accentGold} style={styles.icon} />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirmar Contraseña"
+            placeholderTextColor={colors.textMuted}
+            secureTextEntry={!showPassword}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+        </View>
+        
+        <TouchableOpacity 
+          style={globalStyles.buttonPrimary} 
+          onPress={handleRegister}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator color={colors.accentGoldLight} />
+          ) : (
+            <Text style={globalStyles.buttonText}>Registrarme</Text>
+          )}
+        </TouchableOpacity>
+        
+        <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.linkButton}>
+          <Text style={styles.linkText}>¿Ya tienes cuenta? Inicia sesión</Text>
+        </TouchableOpacity>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
   },
   title: {
+    color: colors.textLight,
     fontSize: 28,
     fontWeight: 'bold',
-    textAlign: 'center',
     marginBottom: 30,
-    color: '#333',
+    textAlign: 'center',
   },
-  input: {
-    backgroundColor: '#fff',
-    padding: 15,
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderRadius: 8,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.borderGold,
+    paddingHorizontal: 15,
   },
-  button: {
-    backgroundColor: '#28a745', // Un verde para diferenciarlo del login
-    padding: 15,
-    borderRadius: 8,
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    color: colors.textLight,
+    paddingVertical: 15,
+  },
+  eyeIcon: {
+    padding: 5,
+  },
+  linkButton: {
+    marginTop: 25,
     alignItems: 'center',
-    marginTop: 10,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
+  linkText: {
+    color: colors.info,
+    fontSize: 14,
+    textDecorationLine: 'underline',
   }
 });

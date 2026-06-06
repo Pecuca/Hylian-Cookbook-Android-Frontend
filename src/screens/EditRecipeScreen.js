@@ -7,14 +7,16 @@ import { globalStyles } from '../theme/styles';
 import { colors } from '../theme/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 
-export default function CreateRecipeScreen({ navigation }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [ingredients, setIngredients] = useState('');
-  const [steps, setSteps] = useState('');
-  const [difficulty, setDifficulty] = useState(1);
-  const [isPublic, setIsPublic] = useState(false);
-  const [image, setImage] = useState(null);
+export default function EditRecipeScreen({ route, navigation }) {
+  const { recipe } = route.params;
+
+  const [title, setTitle] = useState(recipe.title);
+  const [description, setDescription] = useState(recipe.description || '');
+  const [ingredients, setIngredients] = useState(recipe.ingredients.map(i => i.name).join(', '));
+  const [steps, setSteps] = useState(recipe.steps.join(', '));
+  const [difficulty, setDifficulty] = useState(recipe.difficulty || 1);
+  const [isPublic, setIsPublic] = useState(recipe.isPublic);
+  const [image, setImage] = useState(recipe.image);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -29,18 +31,17 @@ export default function CreateRecipeScreen({ navigation }) {
     }
   };
 
-  const handleSave = async () => {
+  const handleUpdate = async () => {
     if (!title || !ingredients || !steps) {
       Alert.alert('Faltan datos', 'Título, ingredientes y pasos son obligatorios.');
       return;
     }
 
-    // Format ingredients correctly for backend
     const formattedIngredients = ingredients
       .split(',')
       .map(i => i.trim())
       .filter(i => i)
-      .map(name => ({ name, quantity: 'Al gusto' })); // Simplified for now, the UI just took a single string
+      .map(name => ({ name, quantity: 'Al gusto' })); 
 
     const formattedSteps = steps
       .split(',')
@@ -52,17 +53,15 @@ export default function CreateRecipeScreen({ navigation }) {
       description,
       ingredients: formattedIngredients,
       steps: formattedSteps,
-      category: 'Almuerzo', // Default for now as backend requires it
       difficulty,
       isPublic,
-      prepTime: 30, // Default for now
-      image: image || 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800'
+      image
     };
 
     try {
-      await api.createRecipe(recipeData);
-      Alert.alert('¡Éxito!', 'Receta creada correctamente', [
-        { text: 'OK', onPress: () => navigation.goBack() }
+      await api.updateRecipe(recipe._id, recipeData);
+      Alert.alert('¡Éxito!', 'Receta actualizada', [
+        { text: 'OK', onPress: () => navigation.navigate('RecipesList') }
       ]);
     } catch (e) {
       Alert.alert('Error', e.message);
@@ -150,8 +149,8 @@ export default function CreateRecipeScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={globalStyles.buttonPrimary} onPress={handleSave}>
-          <Text style={globalStyles.buttonText}>Crear Receta</Text>
+        <TouchableOpacity style={globalStyles.buttonPrimary} onPress={handleUpdate}>
+          <Text style={globalStyles.buttonText}>Guardar Cambios</Text>
         </TouchableOpacity>
         
         <View style={{ height: 40 }} />
