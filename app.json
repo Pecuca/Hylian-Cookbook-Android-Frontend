@@ -1,5 +1,7 @@
 {
   "expo": {
+    "name": "Hylian Cookbook",
+    "slug": "mi-app-recetas",
     "extra": {
       "eas": {
         "projectId": "6b8b8f3b-877e-413a-a4d2-13047a97c27c"
@@ -12,6 +14,5 @@
     "plugins": [
       "expo-font"
     ]
-  },
-  "slug": "recetario-pecuca"
+  }
 }
