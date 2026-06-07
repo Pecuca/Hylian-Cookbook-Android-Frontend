@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert, ActivityIndicator, KeyboardAvoidingView, Platform, Image, Switch } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Slider from '@react-native-community/slider';
@@ -222,6 +222,19 @@ export default function EditRecipeScreen({ route, navigation }) {
             minimumTrackTintColor={colors.danger}
             maximumTrackTintColor={colors.textMuted}
             thumbTintColor={colors.accentGoldLight}
+          />
+        </View>
+
+        <Text style={globalStyles.label}>Visibilidad</Text>
+        <View style={[globalStyles.section, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
+          <Text style={{ color: colors.textLight, fontFamily: 'Calamity', fontSize: 16 }}>
+            {isPublic ? 'Receta Pública' : 'Receta Privada'}
+          </Text>
+          <Switch
+            value={isPublic}
+            onValueChange={setIsPublic}
+            trackColor={{ false: colors.textMuted, true: colors.accentGoldLight }}
+            thumbColor={isPublic ? colors.accentGold : '#f4f3f4'}
           />
         </View>
 
